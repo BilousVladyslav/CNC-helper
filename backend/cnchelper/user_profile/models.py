@@ -1,5 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from rest_framework.authtoken.models import Token
+from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.auth import get_user_model
+from .tasks import send_verification_email
+import uuid
 
 
 class UserManager(BaseUserManager):
@@ -23,6 +30,9 @@ class UserManager(BaseUserManager):
                           birth_date=birth_date)
         user.set_password(password)
         user.save()
+        Token.objects.create(user=user)
+        confirmation = EmailConfirmation.objects.create(user=user, new_mail=user.email, send_to=user.email)
+        # send_verification_email.delay(confirmation.send_to, confirmation.new_mail, confirmation.uuid)
         return user
 
     def create_superuser(self, username, email, first_name, last_name, password, birth_date=None):
@@ -43,6 +53,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     date_joined = models.DateTimeField(auto_now=True)
     is_supervisor = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False)
     # avatar = models.ImageField()
 
     is_active = models.BooleanField(default=True)
@@ -63,4 +74,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.username
 
+
+class EmailConfirmation(models.Model):
+    uuid = models.UUIDField('Unique Verification UUID', default=uuid.uuid4, primary_key=True)
+    new_mail = models.EmailField(blank=False)
+    send_to = models.EmailField(blank=False)
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='confirmations')
+    is_confirmed = models.BooleanField(default=False)
     pass

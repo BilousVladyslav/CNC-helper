@@ -312,6 +312,7 @@ fabric.properties
 # SageMath parsed files
 
 # Environments
+secrets.py
 
 # Spyder project settings
 
