@@ -2,12 +2,13 @@ from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import check_password
 from rest_framework.test import APITestCase
+from rest_framework.authtoken.models import Token
 from datetime import datetime, date
 from .models import EmailConfirmation
 import logging
 
 
-# logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 
 
 def confirm_email(uuid):
@@ -193,6 +194,7 @@ class UpdatePasswordTests(APITestCase):
 
     def test_correct_passwords(self):
         self.client.force_login(user=self.user)
+        old_token = Token.objects.get(user=self.user).key
         data = {
             'old_password': 'foo',
             'new_password': 'ThisIsTheNewPassword123',
@@ -202,8 +204,10 @@ class UpdatePasswordTests(APITestCase):
 
         self.user.refresh_from_db(fields=['password'])
         password = self.user.password
+        new_token = Token.objects.get(user=self.user).key
 
         self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(new_token, old_token)
         self.assertFalse(check_password('foo', password))
         self.assertTrue(check_password('ThisIsTheNewPassword123', password))
 
@@ -313,3 +317,65 @@ class ChangeEmailTests(APITestCase):
         self.assertEqual(self.user.email, 'new.mail@mail.com')
         self.assertTrue(confirmations[0].is_confirmed)
         self.assertTrue(self.user.is_verified)
+
+
+class UserProfileTests(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.URL = '/api/profile/'
+        cls.user = get_user_model().objects.create_user('normal', 'normal@user.com', 'Vladyslav',
+                                                        'Bilous', 'foo', date(2000, 2, 26))
+        cls.confirmation = cls.user.confirmations.all()[0]
+        cls.user.is_verified = True
+        cls.confirmation.is_confirmed = True
+        cls.user.save()
+        cls.confirmation.save()
+
+    def test_get_user_profile(self):
+        self.client.force_login(user=self.user)
+        response = self.client.get(self.URL)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['username'], 'normal')
+        self.assertEqual(response.data['email'], 'normal@user.com')
+        self.assertEqual(response.data['first_name'], 'Vladyslav')
+        self.assertEqual(response.data['last_name'], 'Bilous')
+        self.assertEqual(response.data['birth_date'], '2000-02-26')
+        self.assertFalse(response.data['is_supervisor'])
+        self.assertTrue(response.data['is_verified'])
+
+    def test_delete_user_profile(self):
+        self.client.force_login(user=self.user)
+        response = self.client.delete(self.URL)
+        queryset = get_user_model().objects.filter(username=self.user.username)
+
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(len(queryset), 0)
+
+    def test_correct_profile_update(self):
+        self.client.force_login(user=self.user)
+        data = {
+            'first_name': 'Anton',
+            'last_name': 'Pakin'
+        }
+        response = self.client.put(self.URL, data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['first_name'], 'Anton')
+        self.assertEqual(response.data['last_name'], 'Pakin')
+        self.assertEqual(response.data['birth_date'], '2000-02-26')
+
+    def test_incorrect_profile_update(self):
+        self.client.force_login(user=self.user)
+        data = {
+            'first_name': 'Anton',
+            'last_name': 'Pakin',
+            'wrong_field': 'value',
+            'is_supervisor': True
+        }
+        response = self.client.put(self.URL, data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['first_name'], 'Anton')
+        self.assertEqual(response.data['last_name'], 'Pakin')
+        self.assertEqual(response.data['birth_date'], '2000-02-26')
+        self.assertFalse(response.data['is_supervisor'])

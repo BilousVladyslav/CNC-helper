@@ -3,11 +3,14 @@ from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 
+from django.contrib.auth import get_user_model
+
 from .serializers import RegisterUserSerializer, PasswordChangeSerializer, EmailConfirmationSerializer, \
-    ConfirmEmailSerializer
+    ConfirmEmailSerializer, UserProfileSerializer
 
 
 class ObtainTokenWithStatus(ObtainAuthToken):
@@ -33,6 +36,7 @@ class UserRegistration(GenericAPIView, CreateModelMixin):
 
 class PasswordUpdating(GenericAPIView):
     permission_classes = [IsAuthenticated]
+    authentication_classes = [BasicAuthentication, SessionAuthentication, TokenAuthentication]
     serializer_class = PasswordChangeSerializer
 
     def put(self, request):
@@ -45,6 +49,7 @@ class PasswordUpdating(GenericAPIView):
 
 class EmailConfirmationCreating(GenericAPIView):
     permission_classes = [IsAuthenticated]
+    authentication_classes = [BasicAuthentication, SessionAuthentication, TokenAuthentication]
     serializer_class = EmailConfirmationSerializer
 
     def post(self, request):
@@ -65,3 +70,22 @@ class EmailConfirming(GenericAPIView):
         serializer.save()
 
         return Response(status=status.HTTP_200_OK)
+
+
+class UserProfile(GenericAPIView, UpdateModelMixin, RetrieveModelMixin, DestroyModelMixin):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [BasicAuthentication, SessionAuthentication, TokenAuthentication]
+    serializer_class = UserProfileSerializer
+    queryset = get_user_model().objects.all()
+
+    def get_object(self):
+        return self.request.user
+
+    def get(self, request):
+        return self.retrieve(request)
+
+    def put(self, request):
+        return self.partial_update(request)
+
+    def delete(self, request):
+        return self.destroy(request)

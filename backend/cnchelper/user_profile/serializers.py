@@ -5,6 +5,7 @@ from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework.generics import get_object_or_404
+from rest_framework.authtoken.models import Token
 
 from .models import EmailConfirmation
 import datetime
@@ -64,6 +65,8 @@ class PasswordChangeSerializer(serializers.Serializer):
         user = self.context['user']
         user.set_password(self.validated_data['new_password'])
         user.save()
+        Token.objects.get(user=user).delete()
+        Token.objects.create(user=user)
 
 
 class EmailConfirmationSerializer(serializers.Serializer):
