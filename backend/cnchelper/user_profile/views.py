@@ -1,11 +1,13 @@
-from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.authtoken.models import Token
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
+from rest_framework.authtoken.models import Token
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
-from rest_framework import status
-from .serializers import RegisterUserSerializer, PasswordChangeSerializer
+
+from .serializers import RegisterUserSerializer, PasswordChangeSerializer, EmailConfirmationSerializer, \
+    ConfirmEmailSerializer
 
 
 class ObtainTokenWithStatus(ObtainAuthToken):
@@ -38,4 +40,28 @@ class PasswordUpdating(GenericAPIView):
                                            context={'user': request.user})
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        return Response(status=status.HTTP_200_OK)
+
+
+class EmailConfirmationCreating(GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = EmailConfirmationSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data,
+                                           context={'user': request.user})
+        serializer.is_valid(raise_exception=True)
+        confirmation = serializer.save()
+        # send_verification_email.delay(confirmation.send_to, confirmation.new_mail, confirmation.uuid)
+        return Response(status=status.HTTP_201_CREATED)
+
+
+class EmailConfirming(GenericAPIView):
+    serializer_class = ConfirmEmailSerializer
+
+    def put(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
         return Response(status=status.HTTP_200_OK)

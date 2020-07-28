@@ -7,7 +7,7 @@ from .models import EmailConfirmation
 import logging
 
 
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 
 
 def confirm_email(uuid):
@@ -77,7 +77,12 @@ class UsersManagersTests(TestCase):
 
 
 class UserRegistrationTests(TestCase):
-    REGISTRATION_URL = '/api/register/'
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_user('normal', 'normal@user.com', 'Vladyslav',
+                                                        'Bilous', 'foo', date(2000, 2, 26))
+        cls.REGISTRATION_URL = '/api/register/'
 
     def test_correct_data(self):
         c = Client()
@@ -99,24 +104,21 @@ class UserRegistrationTests(TestCase):
             'username': 'register1',
             'password': 'fooBaR12',
             'confirm_password': 'fooBaR12',
-            'email': 'vladyslav.bilous1@gmail.com',
+            'email': 'normal@user.com',
             'first_name': 'Emily',
             'last_name': 'Jason',
             'birth_date': date(1998, 4, 8)
         }
-        correct_response = c.post(self.REGISTRATION_URL, registration_data, content_type='application/json')
-        self.assertEqual(correct_response.status_code, 201)
 
-        registration_data['username'] = 'register2'
-        incorrect_response = c.post(self.REGISTRATION_URL, registration_data, content_type='application/json')
+        response = c.post(self.REGISTRATION_URL, registration_data, content_type='application/json')
 
-        self.assertEqual(incorrect_response.status_code, 400)
-        self.assertEqual(incorrect_response.json()['email'], ["user with this email already exists."])
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['email'], ["user with this email already exists."])
 
     def test_exist_username(self):
         c = Client()
         registration_data = {
-            'username': 'just_a_name',
+            'username': 'normal',
             'password': 'fooBaR12',
             'confirm_password': 'fooBaR12',
             'email': 'not.exists1@register.com',
@@ -124,47 +126,49 @@ class UserRegistrationTests(TestCase):
             'last_name': 'Jason',
             'birth_date': date(1998, 4, 8)
         }
-        correct_response = c.post(self.REGISTRATION_URL, registration_data, content_type='application/json')
-        self.assertEqual(correct_response.status_code, 201)
 
-        registration_data['email'] = 'not.exists2@register.com'
-        incorrect_response = c.post(self.REGISTRATION_URL, registration_data, content_type='application/json')
-        self.assertEqual(incorrect_response.status_code, 400)
-        self.assertEqual(incorrect_response.json()['username'], ["user with this username already exists."])
+        response = c.post(self.REGISTRATION_URL, registration_data, content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['username'], ["user with this username already exists."])
 
 
 class UserAuthTests(TestCase):
-    AUTH_URL = '/api/auth/'
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.AUTH_URL = '/api/auth/'
+
+        cls.user = get_user_model().objects.create_user('normal', 'normal@user.com', 'Vladyslav',
+                                                        'Bilous', 'foo', date(2000, 2, 26))
+        cls.verified_user = get_user_model().objects.create_user('confirmed', 'confirmed@user.com', 'Illya',
+                                                                 'Filonich', 'foo', date(2010, 8, 16))
+
+        confirmation = EmailConfirmation.objects.get(user=cls.verified_user, is_confirmed=False)
+        confirm_email(confirmation.uuid)
+        cls.verified_user.refresh_from_db(fields=['is_verified'])
 
     def test_correct_credentials_verified(self):
-        user = get_user_model().objects.create_user('submit', 'submit@user.com', 'Hennadiy',
-                                                    'Kovel', 'foo', date(2010, 8, 16))
-        confirmation = EmailConfirmation.objects.get(user=user, is_confirmed=False)
-        confirm_email(confirmation.uuid)
-
-        c = Client()
-        response = c.post(self.AUTH_URL, {'username': 'submit', 'password': 'foo'}, content_type='application/json')
+        c = self.client
+        response = c.post(self.AUTH_URL, {'username': 'confirmed', 'password': 'foo'}, content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()['is_verified'])
         self.assertIsNotNone(response.json()['token'])
 
     def test_correct_credentials_not_verified(self):
-        get_user_model().objects.create_user('confirm', 'confirm@user.com', 'Illya',
-                                             'Filonich', 'foo', date(2010, 8, 16))
-        c = Client()
-        response = c.post(self.AUTH_URL, {'username': 'confirm', 'password': 'foo'}, content_type='application/json')
+        c = self.client
+        response = c.post(self.AUTH_URL, {'username': 'normal', 'password': 'foo'}, content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.json()['is_verified'])
         self.assertIsNotNone(response.json()['token'])
 
     def test_incorrect_credentials(self):
-        c = Client()
-        response = c.post(self.AUTH_URL, {'username': 'confirm', 'password': 'bar'}, content_type='application/json')
+        c = self.client
+        response = c.post(self.AUTH_URL, {'username': 'normal', 'password': 'bar'}, content_type='application/json')
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()['non_field_errors'], ["Unable to log in with provided credentials."])
 
     def test_partial_credentials(self):
-        c = Client()
+        c = self.client
         empty_response = c.post(self.AUTH_URL, {}, content_type='application/json')
         self.assertEqual(empty_response.status_code, 400)
         self.assertEqual(empty_response.json()['username'], ["This field is required."])
@@ -174,7 +178,7 @@ class UserAuthTests(TestCase):
         self.assertEqual(response_without_username.status_code, 400)
         self.assertEqual(response_without_username.json()['username'], ["This field is required."])
 
-        response_without_password = c.post(self.AUTH_URL, {'username': 'confirm'}, content_type='application/json')
+        response_without_password = c.post(self.AUTH_URL, {'username': 'normal'}, content_type='application/json')
         self.assertEqual(response_without_password.status_code, 400)
         self.assertEqual(response_without_password.json()['password'], ["This field is required."])
 
@@ -202,3 +206,110 @@ class UpdatePasswordTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertFalse(check_password('foo', password))
         self.assertTrue(check_password('ThisIsTheNewPassword123', password))
+
+    def test_incorrect_old_password(self):
+        self.user.refresh_from_db(fields=['password'])
+        self.client.force_login(user=self.user)
+        data = {
+            'old_password': 'bar',
+            'new_password': 'ThisIsTheNewPassword123',
+            'confirm_password': 'ThisIsTheNewPassword123',
+        }
+        response = self.client.put(self.URL, data, format='json')
+        self.user.refresh_from_db(fields=['password'])
+        password = self.user.password
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['non_field_errors'], ['Wrong password.'])
+        self.assertTrue(check_password('foo', password))
+        self.assertFalse(check_password('ThisIsTheNewPassword123', password))
+
+    def test_incorrect_new_passwords(self):
+        self.user.refresh_from_db(fields=['password'])
+        self.client.force_login(user=self.user)
+        data = {
+            'old_password': 'foo',
+            'new_password': 'ThisIsTheNewPassword111',
+            'confirm_password': 'ThisIsTheNewPassword333',
+        }
+        response = self.client.put(self.URL, data, format='json')
+        self.user.refresh_from_db(fields=['password'])
+        password = self.user.password
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['non_field_errors'], ['New passwords must match.'])
+        self.assertTrue(check_password('foo', password))
+        self.assertFalse(check_password('ThisIsTheNewPassword123', password))
+
+
+class VerifyUserProfileTests(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.URL = '/api/verify/'
+        cls.user = get_user_model().objects.create_user('normal', 'normal@user.com', 'Vladyslav',
+                                                        'Bilous', 'foo', date(2000, 2, 26))
+        cls.confirmation = cls.user.confirmations.all()[0]
+
+    def test_correct_uuid_verification(self):
+        data = {'uuid': self.confirmation.uuid}
+        self.assertFalse(self.user.is_verified)
+        self.assertFalse(self.confirmation.is_confirmed)
+
+        response = self.client.put(self.URL, data, format='json')
+
+        self.user.refresh_from_db(fields=['is_verified'])
+        self.confirmation.refresh_from_db(fields=['is_confirmed'])
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(self.confirmation.is_confirmed)
+        self.assertTrue(self.user.is_verified)
+
+
+class ChangeEmailTests(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.URL = '/api/email/'
+        cls.user = get_user_model().objects.create_user('normal', 'normal@user.com', 'Vladyslav',
+                                                        'Bilous', 'foo', date(2000, 2, 26))
+        cls.confirmation = cls.user.confirmations.all()[0]
+        cls.user.is_verified = True
+        cls.confirmation.is_confirmed = True
+        cls.user.save()
+        cls.confirmation.save()
+
+    def test_change_email_confirmation_creating(self):
+        self.client.force_login(user=self.user)
+        data = {'email': 'new.mail@mail.com'}
+
+        response = self.client.post(self.URL, data, format='json')
+
+        confirmations = EmailConfirmation.objects.filter(user=self.user, is_confirmed=False)
+
+        self.assertIsNotNone(confirmations)
+        self.assertEqual(response.status_code, 201)
+        self.assertFalse(confirmations[0].is_confirmed)
+
+    def test_email_changing_confirming(self):
+        self.client.force_login(user=self.user)
+        create_confirmation_data = {'email': 'new.mail@mail.com'}
+
+        creation_response = self.client.post(self.URL, create_confirmation_data, format='json')
+
+        confirmations = EmailConfirmation.objects.filter(user=self.user, is_confirmed=False)
+
+        self.assertNotEqual(len(confirmations), 0)
+        self.assertEqual(creation_response.status_code, 201)
+        self.assertFalse(confirmations[0].is_confirmed)
+
+        confirm_data = {'uuid': confirmations[0].uuid}
+        confirming_response = self.client.put('/api/verify/', confirm_data, format='json')
+
+        self.user.refresh_from_db(fields=['is_verified', 'email'])
+        confirmations[0].refresh_from_db(fields=['is_confirmed'])
+
+        self.assertEqual(confirming_response.status_code, 200)
+        self.assertEqual(self.user.email, 'new.mail@mail.com')
+        self.assertTrue(confirmations[0].is_confirmed)
+        self.assertTrue(self.user.is_verified)

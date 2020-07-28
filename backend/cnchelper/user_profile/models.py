@@ -81,4 +81,5 @@ class EmailConfirmation(models.Model):
     send_to = models.EmailField(blank=False)
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='confirmations')
     is_confirmed = models.BooleanField(default=False)
+    created = models.DateTimeField(auto_now=True)
     pass
