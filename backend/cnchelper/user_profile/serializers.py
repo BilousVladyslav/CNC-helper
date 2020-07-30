@@ -8,7 +8,6 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.authtoken.models import Token
 
 from .models import EmailConfirmation
-import datetime
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -88,9 +87,16 @@ class EmailConfirmationSerializer(serializers.Serializer):
 
     def save(self, **kwargs):
         user = self.context['user']
-        confirmation = EmailConfirmation.objects.create(user=user,
-                                                        send_to=user.email,
-                                                        new_mail=self.validated_data['email'])
+        if user.is_verified:
+            confirmation = EmailConfirmation.objects.create(user=user,
+                                                            send_to=user.email,
+                                                            new_mail=self.validated_data['email'])
+        else:
+            confirmation = EmailConfirmation.objects.create(user=user,
+                                                            send_to=self.validated_data['email'],
+                                                            new_mail=self.validated_data['email'])
+            user.email = self.validated_data['email']
+            user.save()
         return confirmation
 
 
