@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'user_profile',
-    'cnc_activity'
+    'cnc_activity',
+
 ]
 
 AUTH_USER_MODEL = 'user_profile.User'

@@ -30,7 +30,8 @@ class RegisterUserSerializer(serializers.ModelSerializer):
                                      'max_length': 40},
                         'email': {'required': True},
                         'last_name': {'required': True},
-                        'first_name': {'required': True}}
+                        'first_name': {'required': True},
+                        'username': {'min_length': 5}}
 
     def validate(self, attrs):
         if attrs['password'] != attrs['confirm_password']:
@@ -118,3 +119,14 @@ class ConfirmEmailSerializer(serializers.Serializer):
         confirmation.user.save()
         confirmation.save()
         EmailConfirmation.objects.filter(is_confirmed=False, user=confirmation.user).delete()
+
+
+class UsersSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = get_user_model()
+        fields = ['username', 'full_name']
+
+    def get_full_name(self, obj):
+        return obj.get_full_name()

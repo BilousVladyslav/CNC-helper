@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import Machine, MachineLog
+from user_profile.serializers import UsersSerializer
 
 
 class MachineSerializer(serializers.ModelSerializer):
@@ -21,17 +22,6 @@ class MachineSerializer(serializers.ModelSerializer):
         return value
 
 
-class UsersSerializer(serializers.ModelSerializer):
-    full_name = serializers.SerializerMethodField()
-
-    class Meta:
-        model = get_user_model()
-        fields = ['username', 'full_name']
-
-    def get_full_name(self, obj):
-        return obj.get_full_name()
-
-
 class ReadOnlyMachineSerializer(serializers.ModelSerializer):
     supervisors = UsersSerializer(many=True, read_only=True)
     workers = UsersSerializer(many=True, read_only=True)
@@ -41,7 +31,24 @@ class ReadOnlyMachineSerializer(serializers.ModelSerializer):
         fields = ['inventory_number', 'name', 'supervisors', 'workers']
 
 
-class MachineLogSerializer(serializers.ModelSerializer):
+class GetMachineLogSerializer(serializers.ModelSerializer):
+    bench = serializers.PrimaryKeyRelatedField(queryset=Machine.objects.all())
+    worked_now = UsersSerializer(read_only=True)
+    has_been_read = serializers.SerializerMethodField()
+
+    class Meta:
+        model = MachineLog
+        fields = ['bench', 'log_header', 'log_text', 'created', 'worked_now', 'has_been_read']
+
+    def get_has_been_read(self, obj):
+        user = self.context['user']
+        if user not in obj.readers.all():
+            obj.readers.add(user)
+            return False
+        return True
+
+
+class CreateMachineLogSerializer(serializers.ModelSerializer):
     bench = serializers.PrimaryKeyRelatedField(queryset=Machine.objects.all())
     worked_now = UsersSerializer(read_only=True)
 

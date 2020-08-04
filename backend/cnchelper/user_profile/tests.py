@@ -8,7 +8,7 @@ from .models import EmailConfirmation
 import logging
 
 
-# logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.ERROR)
 
 
 def confirm_email(uuid):

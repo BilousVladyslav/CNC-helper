@@ -1,49 +1,42 @@
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.generics import GenericAPIView
+from rest_framework.filters import SearchFilter
 from rest_framework.viewsets import GenericViewSet
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin,\
     UpdateModelMixin, DestroyModelMixin, ListModelMixin
 
-from django.contrib.auth import get_user_model
-
 from user_profile.permissions import IsVerified, IsSupervisorOrReadOnly, IsWorkerOrReadOnly
 
-from .serializers import MachineLogSerializer, MachineSerializer, ReadOnlyMachineSerializer
+from . import serializers
 from .models import Machine, MachineLog
+from .paginators import LogsPageNumberPagination, MachinesPageNumberPagination
 
 
 class MachineManaging(GenericViewSet,
+                      ListModelMixin,
+                      RetrieveModelMixin,
                       CreateModelMixin,
                       UpdateModelMixin,
                       DestroyModelMixin):
-    serializer_class = MachineSerializer
     permission_classes = [IsAuthenticated, IsVerified, IsSupervisorOrReadOnly]
     authentication_classes = [BasicAuthentication, SessionAuthentication, TokenAuthentication]
+    pagination_class = MachinesPageNumberPagination
     lookup_field = 'inventory_number'
+    queryset = Machine.objects.order_by('inventory_number')
 
-    def get_queryset(self):
+    def filter_queryset(self, queryset):
         if self.request.user.is_supervisor:
-            return Machine.objects.all()
-        return Machine.objects.filter(workers=self.request.user)
+            return queryset
+        return queryset.filter(workers=self.request.user)
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = ReadOnlyMachineSerializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = ReadOnlyMachineSerializer(queryset, many=True)
-        return Response(serializer.data)
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = ReadOnlyMachineSerializer(instance)
-        return Response(serializer.data)
+    def get_serializer_class(self):
+        if self.action == 'list' or self.action == 'retrieve':
+            return serializers.ReadOnlyMachineSerializer
+        else:
+            return serializers.MachineSerializer
 
 
 class MachineLogging(GenericViewSet,
@@ -51,12 +44,21 @@ class MachineLogging(GenericViewSet,
                      CreateModelMixin):
     permission_classes = [IsAuthenticated, IsVerified, IsWorkerOrReadOnly]
     authentication_classes = [BasicAuthentication, SessionAuthentication, TokenAuthentication]
-    serializer_class = MachineLogSerializer
+    pagination_class = LogsPageNumberPagination
+    filter_backends = [SearchFilter]
+    search_fields = ['=bench__inventory_number']
+    queryset = MachineLog.objects.order_by('created')
 
-    def get_queryset(self):
+    def filter_queryset(self, queryset):
         if self.request.user.is_supervisor:
-            return MachineLog.objects.filter(bench__supervisors=self.request.user)
-        return MachineLog.objects.filter(worked_now=self.request.user)
+            return queryset.filter(bench__supervisors=self.request.user)
+        return queryset.filter(worked_now=self.request.user)
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return serializers.GetMachineLogSerializer
+        else:
+            return serializers.CreateMachineLogSerializer
 
     def get_serializer_context(self):
         return {'user': self.request.user}

@@ -6,12 +6,13 @@ from .models import MachineLog, Machine
 import logging
 
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.ERROR)
 
 
 def verify_worker(worker):
     worker.is_verified = True
     worker.save()
+
 
 def verify_supervisor(supervisor):
     supervisor.is_verified = True
@@ -64,15 +65,15 @@ class MachineManagingTests(APITestCase):
         response = self.client.get(self.URL)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['inventory_number'], '15814856422696')
-        self.assertEqual(response.data[0]['name'], 'First CNC')
-        self.assertEqual(response.data[0]['workers'], [])
+        self.assertEqual(response.data['count'], 1)
+        self.assertEqual(response.data['results'][0]['inventory_number'], '15814856422696')
+        self.assertEqual(response.data['results'][0]['name'], 'First CNC')
+        self.assertEqual(response.data['results'][0]['workers'], [])
         supervisors = {
             'username': 'supervisor',
             'full_name': 'Bilous Vladyslav'
         }
-        self.assertEqual(response.data[0]['supervisors'], [supervisors])
+        self.assertEqual(response.data['results'][0]['supervisors'], [supervisors])
 
     def test_machine_retrieve(self):
         self.client.force_login(user=self.supervisor)
@@ -187,6 +188,27 @@ class MachineLogsTests(APITestCase):
         self.client.post(self.URL, data)
 
         response = self.client.get(self.URL, data)
-        # logging.debug(response.data)
+        logging.debug(response.data)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 3)
+        self.assertEqual(response.data['count'], 3)
+        self.assertFalse(response.data['results'][0]['has_been_read'])
+        self.assertFalse(response.data['results'][1]['has_been_read'])
+        self.assertFalse(response.data['results'][2]['has_been_read'])
+
+    def test_read_machine_logs(self):
+        self.client.force_login(user=self.worker)
+        data = {
+            'bench': '15814856422696',
+            'log_header': 'No data',
+            'log_text': 'Data for current detail is not loaded.'
+        }
+        self.client.post(self.URL, data)
+
+        first_response = self.client.get(self.URL, data)
+        self.assertEqual(first_response.status_code, 200)
+        self.assertFalse(first_response.data['results'][0]['has_been_read'])
+        last_response = self.client.get(self.URL, data)
+        self.assertEqual(last_response.status_code, 200)
+        self.assertTrue(last_response.data['results'][0]['has_been_read'])
+        self.assertIsNone(last_response.data['next'])
+        self.assertIsNone(last_response.data['previous'])

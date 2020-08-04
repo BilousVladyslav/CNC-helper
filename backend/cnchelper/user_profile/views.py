@@ -1,16 +1,19 @@
 from rest_framework import status
+from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
+from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, \
+    ListModelMixin
 
 from django.contrib.auth import get_user_model
 
+from .permissions import IsSupervisor, IsVerified
 from .serializers import RegisterUserSerializer, PasswordChangeSerializer, EmailConfirmationSerializer, \
-    ConfirmEmailSerializer, UserProfileSerializer
+    ConfirmEmailSerializer, UserProfileSerializer, UsersSerializer
 
 
 class ObtainTokenWithStatus(ObtainAuthToken):
@@ -89,3 +92,13 @@ class UserProfile(GenericAPIView, UpdateModelMixin, RetrieveModelMixin, DestroyM
 
     def delete(self, request):
         return self.destroy(request)
+
+
+class GetUsersList(GenericAPIView, ListModelMixin):
+    permission_classes = [IsAuthenticated, IsSupervisor, IsVerified]
+    authentication_classes = [BasicAuthentication, SessionAuthentication, TokenAuthentication]
+    serializer_class = UsersSerializer
+    queryset = get_user_model().objects.filter(is_verified=True)
+    filter_backends = [SearchFilter]
+    search_fields = ['^username', '^first_name', '^last_name']
+
