@@ -24,6 +24,8 @@ class MachineManaging(GenericViewSet,
     permission_classes = [IsAuthenticated, IsVerified, IsSupervisorOrReadOnly]
     authentication_classes = [BasicAuthentication, SessionAuthentication, TokenAuthentication]
     pagination_class = MachinesPageNumberPagination
+    filter_backends = [SearchFilter]
+    search_fields = ['=inventory_number']
     lookup_field = 'inventory_number'
     queryset = Machine.objects.order_by('inventory_number')
 
