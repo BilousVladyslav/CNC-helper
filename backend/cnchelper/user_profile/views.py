@@ -26,7 +26,8 @@ class ObtainTokenWithStatus(ObtainAuthToken):
         token, _ = Token.objects.get_or_create(user=user)
         return Response({
             'token': token.key,
-            'is_verified': user.is_verified
+            'is_verified': user.is_verified,
+            'is_supervisor': user.is_supervisor
         })
 
 
