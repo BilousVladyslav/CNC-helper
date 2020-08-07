@@ -26,7 +26,7 @@ export class LoginComponent implements OnInit {
     @Inject(L10N_LOCALE) public locale: L10nLocale
   ) {
     if (this.authenticationService.user) {
-      // this.router.navigate(['/']);
+      this.router.navigate(['/']);
     }
     this.submited = false;
   }

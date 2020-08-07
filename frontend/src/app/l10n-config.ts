@@ -5,7 +5,7 @@ import { i18nAsset } from './l18n';
 export const l10nConfig: L10nConfig = {
   format: 'language-region',
   providers: [{ name: 'app', asset: i18nAsset }],
-  cache: true,
+  cache: false,
   keySeparator: '.',
   defaultLocale: {
     language: 'en-US',

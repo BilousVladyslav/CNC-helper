@@ -44,7 +44,8 @@ export const i18nAsset = {
         },
         username: {
           placeholder: 'Username',
-          required: 'Login is a required'
+          required: 'Username is a required',
+          min_length: 'Username must be a minimum of 5 characters',
         },
         password: {
           placeholder: 'Password',
@@ -68,6 +69,15 @@ export const i18nAsset = {
           required: 'Last name is a required',
           max_length: 'Last name requires maximum 50 symbols',
           regex: 'Last name must consists of uppercase and lowercase Latin letters'
+        },
+        birth_date: {
+          placeholder: 'Birth date',
+          required: 'Birth date is a required'
+        },
+        dialog: {
+          title: 'Registration completed!',
+          description: 'Registration completed successfully. Now you shoud activate yopur profile. To do this, visit link what we`ve sent to your e-mail.',
+          close: 'Close'
         },
         submit: 'Submit'
       },
@@ -212,7 +222,8 @@ export const i18nAsset = {
         },
         username: {
           placeholder: 'Логін',
-          required: 'Логін обов\'язковий'
+          required: 'Логін обов\'язковий',
+          min_length: 'Логін має складати мінімум 5 символів',
         },
         password: {
           placeholder: 'Пароль',
@@ -232,10 +243,19 @@ export const i18nAsset = {
           regex: 'Ім\'я має складати великі та малі латинські букви'
         },
         last_name: {
-          placeholder: 'Фамілія',
-          required: 'Фамілія обов\'язкова',
-          max_length: 'Фамілія може складати максимум 50 букв',
-          regex: 'Фамілія має складати великі та малі латинські букви'
+          placeholder: 'Прізвище',
+          required: 'Прізвище обов\'язкове',
+          max_length: 'Прізвище може складати максимум 50 букв',
+          regex: 'Прізвище має складати великі та малі латинські букви'
+        },
+        birth_date: {
+          placeholder: 'Дата народження',
+          required: 'Дата народження обов\'язкова'
+        },
+        dialog: {
+          title: 'Реєстрація завершена!',
+          description: 'Реєстрація успішно завершена. Зараз Ви маєта активувати Ваш профіль. Для цього, перейдіть по посиланню, яке ми вислали Вам на електронну пошту.',
+          close: 'Закрити'
         },
         submit: 'Підтвердити'
       },

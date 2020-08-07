@@ -19,6 +19,8 @@ import { MaterialModule } from './material.module';
 import { NavBarComponent } from './shared/components/nav-bar/nav-bar.component';
 import { LoginComponent } from './shared/components/login/login.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
+import { RegistrationComponent } from './components/registration/registration.component';
+
 
 
 @NgModule({
@@ -27,6 +29,7 @@ import { FooterComponent } from './shared/components/footer/footer.component';
     NavBarComponent,
     LoginComponent,
     FooterComponent,
+    RegistrationComponent
   ],
   imports: [
     L10nTranslationModule.forRoot(l10nConfig),

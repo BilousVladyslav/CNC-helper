@@ -5,7 +5,7 @@ export class RegistrationModel {
     confirmPassword: string;
     firstName: string;
     lastName: string;
-    birthDate: Date;
+    birth_date: any;
 }
 
 export class RegistrationResponseModel {
