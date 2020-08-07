@@ -56,11 +56,10 @@ export class AuthorizationService {
         this.supervisor.next(this.user.isSupervisor);
         this.verified.next(this.user.isVerified);
         return tokenResponse;
-      })
-    )
+      }));
   }
 
-  logout(){
+  logout(): void {
     localStorage.removeItem('user');
     this.user = null;
     this.loggedIn.next(false);
