@@ -22,7 +22,7 @@ export class AuthorizationService {
     this.loggedIn.next(this.user != null);
     if (this.user){
       this.verified.next(this.user.isVerified);
-      this.supervisor.next(this.user.isVerified);
+      this.supervisor.next(this.user.isSupervisor);
     }
     else{
       this.supervisor.next(false);
@@ -48,8 +48,8 @@ export class AuthorizationService {
         this.user = ({
           username: loginViewModel.username,
           token: tokenResponse.token,
-          isVerified: tokenResponse.isVerified,
-          isSupervisor: tokenResponse.isSupervisor
+          isVerified: tokenResponse.is_verified,
+          isSupervisor: tokenResponse.is_supervisor
         } as UserModel);
         localStorage.setItem('user', JSON.stringify(this.user));
         this.loggedIn.next(true);

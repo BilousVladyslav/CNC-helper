@@ -6,11 +6,17 @@
     <a mat-button routerLink="/logs">My logs</a>
     <a mat-button routerLink="/machines">Machines</a>
 
+    
     <mat-button-toggle-group name="language" aria-label="Font Style" [(value)]="selectedLanguage" style="font-size: 14px; margin-left: auto;">
       <mat-button-toggle [value]="item.locale" (click)="setLocale(item.locale)" *ngFor="let item of schema">{{ item.text }}</mat-button-toggle>
     </mat-button-toggle-group>
 
-    <ul class="nav navbar-nav">
+    <mat-chip-list *ngIf="!isVerified && isLogged" class="ml-2">
+      <mat-chip color="accent" selected>Not Verified</mat-chip>
+    </mat-chip-list>
+    
+
+    <ul class="nav navbar-nav ml-2">
       <li *ngIf="isLogged" class="mx-auto">
         <button mat-button (click)="logOut()">{{ 'navbar.logout' | translate:locale.language }}</button>
       </li>

@@ -33,7 +33,8 @@ export class NavBarComponent implements OnInit {
     private autorizationService: AuthorizationService,
   ) {
     autorizationService.isLoggedIn.subscribe(x => this.isLogged = x);
-    // this.isOrganizer();
+    autorizationService.isVerified.subscribe(x => this.isVerified = x);
+    autorizationService.isSupervisor.subscribe(x => this.isSupervisor = x);
    }
 
   ngOnInit(): void {

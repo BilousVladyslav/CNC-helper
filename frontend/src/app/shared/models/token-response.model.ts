@@ -1,5 +1,5 @@
 export class TokenResponse {
     token: string;
-    isSupervisor: boolean;
-    isVerified: boolean;
+    is_supervisor: boolean;
+    is_verified: boolean;
 }
