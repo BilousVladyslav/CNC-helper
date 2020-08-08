@@ -21,6 +21,7 @@ import { LoginComponent } from './shared/components/login/login.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
 import { RegistrationComponent } from './components/registration/registration.component';
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
+import { MachinesComponent } from './components/machines/machines.component';
 
 
 
@@ -31,7 +32,8 @@ import { UserProfileComponent } from './components/user-profile/user-profile.com
     LoginComponent,
     FooterComponent,
     RegistrationComponent,
-    UserProfileComponent
+    UserProfileComponent,
+    MachinesComponent
   ],
   imports: [
     L10nTranslationModule.forRoot(l10nConfig),

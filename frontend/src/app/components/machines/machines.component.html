@@ -1,0 +1,148 @@
+<mat-tab-group class="container bg-white">
+    
+
+  <mat-tab label="{{ 'machines.table.title' | translate:locale.language }}">
+    <section class="container  py-3">
+        <div class="example-loading-shade"
+            *ngIf="isLoadingResults">
+            <mat-spinner *ngIf="isLoadingResults"></mat-spinner>
+        </div>
+        <table mat-table [dataSource]="machines" class="example-table">
+            <!-- Number Column -->
+            <ng-container matColumnDef="inventory_number">
+            <th mat-header-cell *matHeaderCellDef>{{ 'machines.table.number' | translate:locale.language }}</th>
+            <td mat-cell *matCellDef="let row">{{row.inventory_number}}</td>
+            </ng-container>
+
+            <!-- Title Column -->
+            <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>{{ 'machines.table.name' | translate:locale.language }}</th>
+            <td mat-cell *matCellDef="let row">{{row.name}}</td>
+            </ng-container>
+
+            <!-- State Column -->
+            <ng-container matColumnDef="workers">
+            <th mat-header-cell *matHeaderCellDef>{{ 'machines.table.workers' | translate:locale.language }}</th>
+            <td mat-cell *matCellDef="let row">
+                <tr mat-cell *ngFor='let worker of row.workers'>
+                    {{worker.username}}: {{worker.full_name}}
+                </tr>
+            </td>
+            </ng-container>
+
+            <!-- Created Column -->
+            <ng-container matColumnDef="supervisors">
+            <th mat-header-cell *matHeaderCellDef>{{ 'machines.table.supervisors' | translate:locale.language }}</th>
+            <td mat-cell *matCellDef="let row">
+                <tr mat-cell *ngFor='let supervisor of row.supervisors'>
+                    {{supervisor.username}}: {{supervisor.full_name}}
+                </tr>
+            </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+        <mat-paginator [length]="resultsLength" [pageSizeOptions]="[100, 200]"></mat-paginator>
+    </section>
+
+  </mat-tab>
+
+  
+  <mat-tab label="{{ 'machines.create.title' | translate:locale.language }}">
+    <section  *ngIf="machineForm"  class="container  py-3">
+        <form [formGroup]="machineForm" class="register-user-container input_container">
+            <mat-form-field class="">
+                <input matInput formControlName="inventory_number" placeholder="{{ 'machines.create.number.title' | translate:locale.language }}">
+                <mat-error *ngIf="machineForm.controls.inventory_number.errors && (machineForm.controls.inventory_number.dirty || machineForm.controls.inventory_number.touched)">
+                    <mat-error *ngIf="machineForm.controls.inventory_number.errors.required" class="error-message">
+                    *{{ 'machines.create.number.required' | translate:locale.language }}
+                    </mat-error>
+                </mat-error>
+            </mat-form-field>
+
+            <mat-form-field class="">
+                <input matInput formControlName="name" placeholder="{{ 'machines.create.name.title' | translate:locale.language }}">
+                <mat-error *ngIf="machineForm.controls.name.errors && (machineForm.controls.name.dirty || machineForm.controls.name.touched)">
+                    <mat-error *ngIf="machineForm.controls.name.errors.required" class="error-message">
+                    *{{ 'machines.create.name.required' | translate:locale.language }}
+                    </mat-error>
+                </mat-error>
+            </mat-form-field>
+
+            <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                <mat-panel-title>
+                    {{ 'machines.create.workers.title' | translate:locale.language }}
+                </mat-panel-title>
+                <mat-panel-description>
+                    {{ 'machines.create.workers.subtitle' | translate:locale.language }}
+                    <mat-icon>account_circle</mat-icon>
+                </mat-panel-description>
+                </mat-expansion-panel-header>
+
+                <div formArrayName="workers"
+                    *ngFor="let worker of machineForm.get('workers')['controls']; let e = index;">
+
+                    {{e + 1}}:
+                    <mat-form-field class="m-0 basic_input">
+                        <input matInput [formControl]="worker" placeholder="{{ 'machines.create.workers.input_title' | translate:locale.language }}">
+                        <mat-error *ngIf="worker.errors && (worker.dirty || worker.touched)">
+                            <mat-error *ngIf="worker.errors.required" class="error-message">
+                            * {{ 'machines.create.workers.required' | translate:locale.language }}
+                            </mat-error>
+                        </mat-error>
+                    </mat-form-field>
+
+                    <button mat-raised-button color="warn" class="mx-2" (click)="deleteWorker(e)">{{ 'machines.create.workers.delete' | translate:locale.language }}</button>
+
+                </div>
+                <button mat-raised-button color="primary" (click)="addWorker()">{{ 'machines.create.workers.add' | translate:locale.language }}</button>
+
+            </mat-expansion-panel>
+
+            <mat-divider class=""></mat-divider>
+            <mat-divider class="my-3"></mat-divider>
+
+            <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                <mat-panel-title>
+                    {{ 'machines.create.supervisors.title' | translate:locale.language }}
+                </mat-panel-title>
+                <mat-panel-description>
+                    {{ 'machines.create.supervisors.subtitle' | translate:locale.language }}
+                    <mat-icon>account_circle</mat-icon>
+                </mat-panel-description>
+                </mat-expansion-panel-header>
+
+                <div formArrayName="supervisors"
+                    *ngFor="let supervisor of machineForm.get('supervisors')['controls']; let e = index;">
+
+                    {{e + 1}}:
+                    <mat-form-field class="m-0 basic_input">
+                        <input matInput [formControl]="supervisor" placeholder="{{ 'machines.create.supervisors.input_title' | translate:locale.language }}">
+                        <mat-error *ngIf="supervisor.errors && (supervisor.dirty || supervisor.touched)">
+                            <mat-error *ngIf="supervisor.errors.required" class="error-message">
+                            * {{ 'machines.create.supervisors.required' | translate:locale.language }}
+                            </mat-error>
+                        </mat-error>
+                    </mat-form-field>
+
+                    <button mat-raised-button color="warn" class="mx-2" (click)="deleteSupervisor(e)">{{ 'machines.create.supervisors.delete' | translate:locale.language }}</button>
+
+                </div>
+                <button mat-raised-button color="primary" (click)="addSupervisor()">{{ 'machines.create.supervisors.add' | translate:locale.language }}</button>
+
+            </mat-expansion-panel>
+            <mat-divider class=""></mat-divider>
+            <mat-divider class="my-3"></mat-divider>
+
+        </form>
+
+        <button mat-raised-button color="warn" (click)="onSubmit()" [disabled]="!formsIsValid()" class="w-100">{{ 'machines.create.button' | translate:locale.language }}</button>
+    </section>
+
+  </mat-tab>
+
+
+</mat-tab-group>

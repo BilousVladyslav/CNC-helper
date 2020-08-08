@@ -127,7 +127,46 @@ export const i18nAsset = {
         },
         save: 'Save changes'
       },
-      
+      machines: {
+        table: {
+          title: 'All machines',
+          number: 'Inventory number',
+          name: 'Machine name',
+          workers: 'Workers',
+          supervisors: 'Supervisors'
+        },
+        create: {
+          title: 'Create machine',
+          number: {
+            title: 'Inventory number',
+            required: 'Inventory number is a required'
+          },
+          name: {
+            title: 'Machine name',
+            required: 'Machine name is a required'
+          },
+          workers: {
+            title: 'Add worker',
+            subtitle: 'Create workers for this machine',
+            input_title: 'Worker\'s username',
+            required: 'Worker username is a required',
+            add: 'Add worker',
+            delete: 'Delete worker'
+          },
+          supervisors: {
+            title: 'Add supervisor',
+            subtitle: 'Create supervisors for this machine',
+            input_title: 'Supervisor\'s username',
+            required: 'Supervisor\'s username is a required',
+            add: 'Add supervisor',
+            delete: 'Delete supervisor'
+          },
+          button: 'Create machine'
+        },
+        edit:{
+
+        }
+      }
     },
     'uk-UA': {
       changeLocale: 'Змінити мову',
@@ -257,5 +296,45 @@ export const i18nAsset = {
         },
         save: 'Зберегти зміни'
       },
+      machines: {
+        table: {
+          title: 'Всі станки',
+          number: 'Інвентарний номер',
+          name: 'Назва станка',
+          workers: 'Працівники',
+          supervisors: 'Наглядачі'
+        },
+        create: {
+          title: 'Створити станок',
+          number: {
+            title: 'Інвентарний номер',
+            required: 'Інвентарний номер обов\'язковий'
+          },
+          name: {
+            title: 'Назва станка',
+            required: 'Назва станка обов\'язкова'
+          },
+          workers: {
+            title: 'Додати працівника',
+            subtitle: 'Додайте працівника для цього станка',
+            input_title: 'Логін працівника',
+            required: 'Логін працівника обов\'язковий',
+            add: 'Додати',
+            delete: 'Видалити'
+          },
+          supervisors: {
+            title: 'Додати наглядача',
+            subtitle: 'Додайте наглядача для цього станка',
+            input_title: 'Логін наглядача',
+            required: 'Логін наглядача обов\'язковий',
+            add: 'Додати',
+            delete: 'Видалити'
+          },
+          button: 'Створити станок'
+        },
+        edit:{
+
+        }
+      }
     }
   };

@@ -80,6 +80,7 @@ export class UserProfileComponent implements OnInit {
   }
 
   EditUserProfile(): void {
+    this.user.birth_date = new Date(this.user.birth_date).toISOString().split("T")[0];
     this.subscription = this.profileService.EditUserProfile(this.user)
       .subscribe(data => {
         this.user = data;
@@ -98,6 +99,7 @@ export class UserProfileComponent implements OnInit {
     const emailModel = this.emailForm.value as ChangeEmail;
     this.subscription = this.profileService.ChangeEmail(emailModel)
       .subscribe(data => {
+        this.emailForm.reset();
         this._snackBar.open('Success! Verification sent to yor new email.', 'Close', {
           duration: 3000,
         });
@@ -113,6 +115,7 @@ export class UserProfileComponent implements OnInit {
     const passwordsModel = this.passwordsForm.value as ChangePassword;
     this.subscription = this.profileService.ChangePassword(passwordsModel)
       .subscribe(data => {
+        this.passwordsForm.reset();
         this._snackBar.open('Success! Log in again.', 'Close', {
           duration: 3000,
         });
