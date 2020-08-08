@@ -3,8 +3,8 @@ export class UserProfileModel {
     is_supervisor: boolean;
     is_verified: boolean;
     email: string;
-    firstName: string;
-    lastName: string;
+    first_name: string;
+    last_name: string;
     birth_date: string;
 }
 

@@ -8,6 +8,8 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatChipsModule} from '@angular/material/chips';
+import {MatTabsModule} from '@angular/material/tabs';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
 
 
 @NgModule({
@@ -21,7 +23,9 @@ import {MatChipsModule} from '@angular/material/chips';
     MatNativeDateModule,
     MatDatepickerModule,
     MatDialogModule,
-    MatChipsModule
+    MatChipsModule,
+    MatTabsModule,
+    MatSnackBarModule
   ]
 })
 export class MaterialModule { }

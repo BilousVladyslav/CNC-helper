@@ -1,1 +1,143 @@
-<p>user-profile works!</p>
+<mat-tab-group class="container bg-white">
+
+  <mat-tab label="{{ 'profile.title' | translate:locale.language }}">
+    <section class="container  py-3">
+      <form [formGroup]="userProfileForm" (ngSubmit)="onSubmitProfile()" class="user-profile-container">
+
+        <mat-form-field class="form-group">
+          <input matInput [value]="user.username" [readonly]="true" placeholder="{{ 'profile.username' | translate:locale.language }}">
+        </mat-form-field>
+
+        <mat-form-field class="form-group">
+          <input matInput [value]="user.email" type="text" [readonly]="true" placeholder="{{ 'profile.email' | translate:locale.language }}">
+        </mat-form-field>
+
+        <mat-form-field class="form-group">
+          <input matInput formControlName="first_name" [(ngModel)]="user.first_name" placeholder="{{ 'profile.first_name.placeholder' | translate:locale.language }}">
+          <mat-error *ngIf="userProfileForm.controls.first_name.errors && (userProfileForm.controls.first_name.dirty || userProfileForm.controls.first_name.touched)">
+            <mat-error *ngIf="userProfileForm.controls.first_name.errors.required">
+              *{{ 'profile.first_name.required' | translate:locale.language }}
+            </mat-error>
+            <mat-error *ngIf="userProfileForm.controls.first_name.errors.maxlength">
+              *{{ 'profile.first_name.max_length' | translate:locale.language }}
+            </mat-error>
+            <mat-error *ngIf="userProfileForm.controls.first_name.errors.pattern">
+              *{{ 'profile.first_name.regex' | translate:locale.language }}
+            </mat-error>
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field class="form-group">
+          <input matInput formControlName="last_name" [(ngModel)]="user.last_name" placeholder="{{ 'profile.last_name.placeholder' | translate:locale.language }}">
+          <mat-error *ngIf="userProfileForm.controls.last_name.errors && (userProfileForm.controls.last_name.dirty || userProfileForm.controls.last_name.touched)">
+            <mat-error *ngIf="userProfileForm.controls.last_name.errors.required">
+              *{{ 'profile.last_name.required' | translate:locale.language }}
+            </mat-error>
+            <mat-error *ngIf="userProfileForm.controls.last_name.errors.maxlength">
+              *{{ 'profile.last_name.max_length' | translate:locale.language }}
+            </mat-error>
+            <mat-error *ngIf="userProfileForm.controls.last_name.errors.pattern">
+              *{{ 'profile.last_name.regex' | translate:locale.language }}
+            </mat-error>
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field color="accent" appearance="fill">
+          <mat-label>{{ 'register.birth_date.placeholder' | translate:locale.language }}</mat-label>
+          <input matInput [(ngModel)]="user.birth_date" [matDatepicker]="picker2" formControlName="birth_date" [min]="minDate" [max]="maxDate" >
+          <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+          <mat-datepicker #picker2 color="primary"></mat-datepicker>
+          <mat-error *ngIf="userProfileForm.controls.birth_date.errors && (userProfileForm.controls.birth_date.dirty || userProfileForm.controls.birth_date.touched)">
+            <mat-error *ngIf="userProfileForm.controls.birth_date.errors.required">
+              *{{ 'register.birth_date.required' | translate:locale.language }}
+            </mat-error>
+          </mat-error>
+        </mat-form-field>
+
+        <mat-chip-list>
+          <mat-chip *ngIf="!user.is_supervisor">{{ 'profile.bages.not_supervisor' | translate:locale.language }}</mat-chip>
+          <mat-chip *ngIf="user.is_supervisor" color="primary" selected>{{ 'profile.bages.supervisor' | translate:locale.language }}</mat-chip>
+        </mat-chip-list>
+
+        <div>
+          <button mat-button [disabled]="userProfileForm.invalid" class="p-3">{{ 'profile.save' | translate:locale.language }}</button>
+        </div>
+      </form>
+    </section>
+
+  </mat-tab>
+  <mat-tab label="{{ 'profile.email_title' | translate:locale.language }}">
+    <section class="container  py-3">
+      <form [formGroup]="emailForm" (ngSubmit)="onSubmitEmail()" class="user-profile-container">
+        <mat-form-field class="form-group">
+          <input matInput [value]="user.email" type="text" [readonly]="true" placeholder="{{ 'profile.email' | translate:locale.language }}">
+        </mat-form-field>
+
+        <mat-form-field class="form-group">
+            <input matInput formControlName="email" type="text" placeholder="{{ 'register.email.placeholder' | translate:locale.language }}">
+            <mat-error *ngIf="emailForm.controls.email.errors && (emailForm.controls.email.dirty || emailForm.controls.email.touched)">
+                <mat-error *ngIf="emailForm.controls.email.errors.pattern">
+                *{{ 'register.email.required' | translate:locale.language }} <strong>{{ 'register.email.strong' | translate:locale.language }}</strong>
+                </mat-error>
+            </mat-error>
+        </mat-form-field>
+
+        <mat-chip-list>
+          <mat-chip *ngIf="!user.is_verified">{{ 'profile.bages.not_verified' | translate:locale.language }}</mat-chip>
+          <mat-chip *ngIf="user.is_verified" color="primary" selected>{{ 'profile.bages.verified' | translate:locale.language }}</mat-chip>
+        </mat-chip-list>
+
+        <div>
+          <button mat-button [disabled]="emailForm.invalid" class="p-3">{{ 'profile.save' | translate:locale.language }}</button>
+        </div>
+      </form>
+    </section>
+
+  </mat-tab>
+  <mat-tab label="{{ 'profile.passwords_title' | translate:locale.language }}">
+    <section class="container  py-3">
+      <form [formGroup]="passwordsForm" (ngSubmit)="onSubmitPasswords()" class="user-profile-container">
+
+        <mat-form-field class="form-group">
+            <input matInput formControlName="old_password" type="text" type="password" placeholder="{{ 'profile.old_password.placeholder' | translate:locale.language }}">
+            <mat-error *ngIf="passwordsForm.controls.old_password.errors && (passwordsForm.controls.old_password.dirty || passwordsForm.controls.old_password.touched)">
+                <mat-error *ngIf="passwordsForm.controls.old_password.errors.required">
+                *{{ 'profile.old_password.required' | translate:locale.language }}
+                </mat-error>
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field class="form-group">
+            <input matInput formControlName="new_password" type="text" type="password" placeholder="{{ 'profile.new_password.placeholder' | translate:locale.language }}">
+            <mat-error *ngIf="passwordsForm.controls.new_password.errors && (passwordsForm.controls.new_password.dirty || passwordsForm.controls.new_password.touched)">
+                <mat-error *ngIf="passwordsForm.controls.new_password.errors.required">
+                *{{ 'profile.new_password.required' | translate:locale.language }}
+                </mat-error>
+                <mat-error *ngIf="passwordsForm.controls.new_password.errors.minlength">
+                *{{ 'profile.new_password.min_length' | translate:locale.language }}
+                </mat-error>
+                <mat-error *ngIf="passwordsForm.controls.new_password.errors.pattern">
+                *{{ 'profile.new_password.regex' | translate:locale.language }}
+                </mat-error>
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field class="form-group">
+            <input matInput formControlName="confirm_password" type="text" type="password" placeholder="{{ 'profile.password_confirm.placeholder' | translate:locale.language }}">
+            <mat-error *ngIf="passwordsForm.controls.confirm_password.errors && (passwordsForm.controls.confirm_password.dirty || passwordsForm.controls.confirm_password.touched)">
+                <mat-error *ngIf="passwordsForm.controls.confirm_password.errors.required" class="error-message">
+                *{{ 'profile.password_confirm.required' | translate:locale.language }}
+                </mat-error>
+            </mat-error>
+            <mat-error *ngIf="passwordsForm.controls.confirm_password.errors?.mustMatch" class="error-message">
+                *{{ 'profile.password_confirm.must_match' | translate:locale.language }}
+            </mat-error>
+        </mat-form-field>
+
+        <div>
+          <button mat-button [disabled]="passwordsForm.invalid" class="p-3">{{ 'profile.save' | translate:locale.language }}</button>
+        </div>
+      </form>
+    </section>
+
+  </mat-tab>
+ 
+</mat-tab-group>
