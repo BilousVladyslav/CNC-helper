@@ -1,63 +1,7 @@
 <mat-tab-group class="container bg-white">
-    
-
-  <mat-tab label="{{ 'machines.table.title' | translate:locale.language }}">
-    <section class="container  py-3">
-        <div class="example-loading-shade"
-            *ngIf="isLoadingResults">
-            <mat-spinner *ngIf="isLoadingResults"></mat-spinner>
-        </div>
-        <table mat-table [dataSource]="machines" class="example-table">
-            <!-- Number Column -->
-            <ng-container matColumnDef="inventory_number">
-            <th mat-header-cell *matHeaderCellDef>{{ 'machines.table.number' | translate:locale.language }}</th>
-            <td mat-cell *matCellDef="let row">{{row.inventory_number}}</td>
-            </ng-container>
-
-            <!-- Title Column -->
-            <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef>{{ 'machines.table.name' | translate:locale.language }}</th>
-            <td mat-cell *matCellDef="let row">{{row.name}}</td>
-            </ng-container>
-
-            <!-- State Column -->
-            <ng-container matColumnDef="workers">
-            <th mat-header-cell *matHeaderCellDef>{{ 'machines.table.workers' | translate:locale.language }}</th>
-            <td mat-cell *matCellDef="let row">
-                <tr mat-cell *ngFor='let worker of row.workers'>
-                    {{worker.username}}: {{worker.full_name}}
-                </tr>
-            </td>
-            </ng-container>
-
-            <!-- Created Column -->
-            <ng-container matColumnDef="supervisors">
-            <th mat-header-cell *matHeaderCellDef>{{ 'machines.table.supervisors' | translate:locale.language }}</th>
-            <td mat-cell *matCellDef="let row">
-                <tr mat-cell *ngFor='let supervisor of row.supervisors'>
-                    {{supervisor.username}}: {{supervisor.full_name}}
-                </tr>
-            </td>
-            </ng-container>
-
-            <!-- State Column -->
-            <ng-container matColumnDef="link">
-            <th mat-header-cell *matHeaderCellDef>{{ 'machines.table.link' | translate:locale.language }}</th>
-            <td mat-cell *matCellDef="let row">
-                <a mat-button routerLink="/machines/edit/{{row.inventory_number}}">{{ 'machines.table.edit' | translate:locale.language }}</a>
-            </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
-        <mat-paginator [length]="resultsLength" [pageSizeOptions]="[100, 200]"></mat-paginator>
-    </section>
-
-  </mat-tab>
 
   
-  <mat-tab label="{{ 'machines.create.title' | translate:locale.language }}">
+  <mat-tab label="{{ 'machines.edit.title' | translate:locale.language }}">
     <section  *ngIf="machineForm"  class="container  py-3">
         <form [formGroup]="machineForm" class="register-user-container input_container">
             <mat-form-field class="">
@@ -147,7 +91,9 @@
 
         </form>
 
-        <button mat-raised-button color="warn" (click)="onSubmit()" [disabled]="!formsIsValid()" class="w-100">{{ 'machines.create.button' | translate:locale.language }}</button>
+        <button mat-raised-button color="warn" (click)="onDelete()" [disabled]="!formsIsValid()" class="w-100">{{ 'machines.edit.delete' | translate:locale.language }}</button>
+
+        <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="!formsIsValid()" class="w-100 my-3">{{ 'machines.edit.save' | translate:locale.language }}</button>
     </section>
 
   </mat-tab>

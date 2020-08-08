@@ -4,6 +4,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { RegistrationComponent } from './components/registration/registration.component';
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
 import { MachinesComponent } from './components/machines/machines.component';
+import { MachineEditComponent } from './components/machine-edit/machine-edit.component';
 
 
 
@@ -19,6 +20,10 @@ const routes: Routes = [
   {
     path: 'machines',
     component: MachinesComponent
+  },
+  {
+    path: 'machines/edit/:machineNumber',
+    component: MachineEditComponent
   },
 ];
 

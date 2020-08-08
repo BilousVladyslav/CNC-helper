@@ -3,8 +3,8 @@
     <span>CNC Helper</span>
 
     <a mat-button routerLink="/profile">{{ 'navbar.profile' | translate:locale.language }}</a>
-    <a mat-button routerLink="/logs">My logs</a>
-    <a mat-button routerLink="/machines">Machines</a>
+    <a mat-button routerLink="/logs">{{ 'navbar.logs' | translate:locale.language }}</a>
+    <a mat-button routerLink="/machines">{{ 'navbar.machines' | translate:locale.language }}</a>
 
     
     <mat-button-toggle-group name="language" aria-label="Font Style" [(value)]="selectedLanguage" style="font-size: 14px; margin-left: auto;">
@@ -12,7 +12,7 @@
     </mat-button-toggle-group>
 
     <mat-chip-list *ngIf="!isVerified && isLogged" class="ml-2">
-      <mat-chip color="accent" selected>Not Verified</mat-chip>
+      <mat-chip color="accent" selected>{{ 'navbar.not_verified' | translate:locale.language }}</mat-chip>
     </mat-chip-list>
     
 

@@ -22,6 +22,7 @@ import { FooterComponent } from './shared/components/footer/footer.component';
 import { RegistrationComponent } from './components/registration/registration.component';
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
 import { MachinesComponent } from './components/machines/machines.component';
+import { MachineEditComponent } from './components/machine-edit/machine-edit.component';
 
 
 
@@ -33,7 +34,8 @@ import { MachinesComponent } from './components/machines/machines.component';
     FooterComponent,
     RegistrationComponent,
     UserProfileComponent,
-    MachinesComponent
+    MachinesComponent,
+    MachineEditComponent
   ],
   imports: [
     L10nTranslationModule.forRoot(l10nConfig),

@@ -30,9 +30,9 @@ export const i18nAsset = {
       navbar: {
         logout: 'Log out',
         profile: 'Profile',
-        votings: 'Votings',
-        constructor: 'Constructor',
-        create: 'Create'
+        logs: 'My logs',
+        machines: 'Machines',
+        not_verified: 'Not verified'
       },
       register: {
         title: 'New user registration',
@@ -133,7 +133,9 @@ export const i18nAsset = {
           number: 'Inventory number',
           name: 'Machine name',
           workers: 'Workers',
-          supervisors: 'Supervisors'
+          supervisors: 'Supervisors',
+          link: 'Link',
+          edit: 'Edit'
         },
         create: {
           title: 'Create machine',
@@ -164,7 +166,9 @@ export const i18nAsset = {
           button: 'Create machine'
         },
         edit:{
-
+          title: 'Edit machine data',
+          save: 'Save',
+          delete: 'Delete machine'
         }
       }
     },
@@ -246,9 +250,9 @@ export const i18nAsset = {
       navbar: {
         logout: 'Вийти',
         profile: 'Профіль',
-        votings: 'Голосування',
-        constructor: 'Конструктор',
-        create: 'Створити'
+        logs: 'Мої записи',
+        machines: 'Станки',
+        not_verified: 'Не верифіковано'
       },
       profile: {
         title: 'Персональна інформація',
@@ -302,7 +306,9 @@ export const i18nAsset = {
           number: 'Інвентарний номер',
           name: 'Назва станка',
           workers: 'Працівники',
-          supervisors: 'Наглядачі'
+          supervisors: 'Наглядачі',
+          link: 'Посилання',
+          edit: 'Змінити'
         },
         create: {
           title: 'Створити станок',
@@ -333,7 +339,9 @@ export const i18nAsset = {
           button: 'Створити станок'
         },
         edit:{
-
+          title: 'Редагувати дані станка',
+          save: 'Зберегти',
+          delete: 'Видалити станок'
         }
       }
     }

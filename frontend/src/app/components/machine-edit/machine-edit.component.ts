@@ -4,78 +4,65 @@ import {catchError, map, startWith, switchMap} from 'rxjs/operators';
 import { ProfileService } from 'src/app/core/services/profile.service';
 import { AuthorizationService } from 'src/app/core/services/authorization.service';
 import { MachinesService } from 'src/app/core/services/machines.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, FormControl, Validators, FormArray } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { L10N_LOCALE, L10nLocale } from 'angular-l10n';
 import { MatPaginator } from '@angular/material/paginator';
 import { MachinesModel, MachinesPaginatedResponse, MachinesCreateModel } from 'src/app/shared/models/machines.model';
 
+
 @Component({
-  selector: 'app-machines',
-  templateUrl: './machines.component.html',
-  styleUrls: ['./machines.component.css']
+  selector: 'app-machine-edit',
+  templateUrl: './machine-edit.component.html',
+  styleUrls: ['./machine-edit.component.css']
 })
-export class MachinesComponent implements OnInit {
-  displayedColumns: string[] = ['inventory_number', 'name', 'workers', 'supervisors', 'link'];
+export class MachineEditComponent implements OnInit {
   private subscription: Subscription;
-  machines: MachinesModel[];
   machineForm: FormGroup;
-  resultsLength = 0;
-  isLoadingResults = true;
   workersFormArray: FormArray;
   supervisorsFormArray: FormArray;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   
   constructor(
-    private profileService: ProfileService,
     private authorizationService: AuthorizationService,
     private machinesService: MachinesService,
     private router: Router,
+    private route: ActivatedRoute,
     private fb: FormBuilder,
     private _snackBar: MatSnackBar,
     @Inject(L10N_LOCALE) public locale: L10nLocale
   ) { }
 
-  ngAfterViewInit() {
-    merge(this.paginator.page)
-      .pipe(
-        startWith({}),
-        switchMap(() => {
-          this.isLoadingResults = true;
-          return this.machinesService.GetMachines(this.paginator.pageIndex + 1);
-        }),
-        map(data => {
-          this.isLoadingResults = false;
-          this.resultsLength = data.count;
-
-          return data.results;
-        }),
-        catchError(() => {
-          this.isLoadingResults = false;
-          return observableOf([]);
-        })
-      ).subscribe(data => this.machines = data);
-  }
-
   ngOnInit(): void {
-    this.CreateMachineForm();
+    this.subscription = this.machinesService
+      .GetConcreteMachine(this.route.snapshot.params['machineNumber'])
+      .subscribe(
+        res => this.CreateMachineForm(res),
+        errors => this.router.navigate['machines']);
   }
 
-  CreateMachineForm(): void {
+  CreateMachineForm(data: MachinesModel): void {
     this.machineForm = this.fb.group({
       inventory_number: new FormControl(
-        '', [Validators.required]),
+        data.inventory_number, [Validators.required]),
       name: new FormControl(
-        '', [Validators.required]),
+        data.name, [Validators.required]),
       workers: new FormArray([ ]),
       supervisors: new FormArray([ ]),
     });
     this.workersFormArray = this.machineForm.get('workers') as FormArray;
     this.supervisorsFormArray = this.machineForm.get('supervisors') as FormArray;
-  }
 
+    for (let i = 0; i < data.workers.length; i++) {
+      this.workersFormArray.push(new FormControl(data.workers[i].username, [Validators.required]))
+    }
+    for (let i = 0; i < data.supervisors.length; i++) {
+      this.supervisorsFormArray.push(new FormControl(data.supervisors[i].username, [Validators.required]))
+    }
+
+  }
 
   addWorker(): void {
     this.workersFormArray.push( new FormControl('', [Validators.required]) );
@@ -99,13 +86,12 @@ export class MachinesComponent implements OnInit {
 
   onSubmit(): void {
     if (this.formsIsValid()) {
-      var machineViewModel = this.machineForm.value as MachinesCreateModel;
+      const machineViewModel = this.machineForm.value as MachinesCreateModel;
       this.subscription = this.machinesService
         .CreateMachine(machineViewModel)
         .subscribe(
           res => {
             this.machineForm.reset();
-            this.updateMachinesData();
           },
           errors => {
             this._snackBar.open('Wrong data,', 'Close', {
@@ -115,11 +101,16 @@ export class MachinesComponent implements OnInit {
     }
   }
 
-  updateMachinesData(): void{
-    this.subscription = this.machinesService.GetMachines(1)
-      .subscribe(data => {
-        this.machines = data.results;
-        });
+  onDelete(): void {
+    this.subscription = this.machinesService
+          .DeleteMachine(this.route.snapshot.params['machineNumber'])
+          .subscribe(
+            res => this.router.navigate(['/machines']),
+            errors => {
+              this._snackBar.open(errors.message, 'Close', {
+                duration: 3000,
+              });
+            });
   }
 
   ngOnDestroy(): void {
@@ -127,4 +118,5 @@ export class MachinesComponent implements OnInit {
       this.subscription.unsubscribe();
     }
   }
+
 }
