@@ -76,6 +76,7 @@ export class UserProfileComponent implements OnInit {
     this.subscription = this.profileService.GetUserProfile()
       .subscribe(data => {
         this.user = data;
+        this.authorizationService.setIsVerified(this.user.is_verified);
       });
   }
 

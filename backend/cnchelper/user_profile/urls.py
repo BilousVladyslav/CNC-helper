@@ -2,7 +2,6 @@ from django.conf.urls import url
 from .views import ObtainTokenWithStatus, UserRegistration, PasswordUpdating, \
     EmailConfirming, EmailConfirmationCreating, UserProfile
 
-
 profile_urlpatterns = [
     url(r'^api/auth/', ObtainTokenWithStatus.as_view()),
     url(r'^api/register/', UserRegistration.as_view()),

@@ -87,10 +87,7 @@ export class RegistrationComponent implements OnInit {
           username: registerViewModel.username,
           password: registerViewModel.password
         } as UserLogin;
-        const dialogRef = this.dialog.open(RegisterCompleteDialog);
-        dialogRef.afterClosed().subscribe(result => {
-          this.login(loginModel);
-        });
+        this.login(loginModel);
       },
       errors => {
         this.errorMessage = errors.message;

@@ -38,6 +38,10 @@ export class AuthorizationService {
     return this.verified.asObservable();
   }
 
+  setIsVerified(value): void {
+    this.verified.next(value);
+  }
+
   get isSupervisor(): Observable<boolean>{
     return this.supervisor.asObservable();
   }
