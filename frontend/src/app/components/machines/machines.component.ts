@@ -17,7 +17,7 @@ import { MachinesModel, MachinesPaginatedResponse, MachinesCreateModel } from 's
   styleUrls: ['./machines.component.css']
 })
 export class MachinesComponent implements OnInit {
-  displayedColumns: string[] = ['inventory_number', 'name', 'workers', 'supervisors', 'link'];
+  displayedColumns: string[];
   private subscription: Subscription;
   machines: MachinesModel[];
   machineForm: FormGroup;
@@ -25,18 +25,29 @@ export class MachinesComponent implements OnInit {
   isLoadingResults = true;
   workersFormArray: FormArray;
   supervisorsFormArray: FormArray;
+  isSupervisor = false;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   
   constructor(
-    private profileService: ProfileService,
     private authorizationService: AuthorizationService,
     private machinesService: MachinesService,
     private router: Router,
     private fb: FormBuilder,
     private _snackBar: MatSnackBar,
     @Inject(L10N_LOCALE) public locale: L10nLocale
-  ) { }
+  ) {
+    this.authorizationService.isSupervisor.subscribe(data => {
+      this.isSupervisor = data;
+      if (data === true){
+        this.displayedColumns = ['inventory_number', 'name', 'workers', 'supervisors', 'link'];
+        this.CreateMachineForm();
+      }
+      else{
+        this.displayedColumns = ['inventory_number', 'name', 'workers', 'supervisors'];
+      }
+    });
+  }
 
   ngAfterViewInit() {
     merge(this.paginator.page)
@@ -60,7 +71,7 @@ export class MachinesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.CreateMachineForm();
+    // this.CreateMachineForm();
   }
 
   CreateMachineForm(): void {

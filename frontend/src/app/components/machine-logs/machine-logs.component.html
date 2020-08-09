@@ -1,0 +1,68 @@
+<mat-tab-group class="container bg-white">
+    
+
+  <mat-tab label="{{ 'logs.title' | translate:locale.language }}">
+    <section class="container  py-3">
+        <div class="example-loading-shade"
+            *ngIf="isLoadingResults">
+            <mat-spinner *ngIf="isLoadingResults"></mat-spinner>
+        </div>
+        <mat-form-field class='basic_input'>
+            <mat-label>{{ 'logs.filter.title' | translate:locale.language }}</mat-label>
+            <input matInput (keyup)="applyFilter($event)" placeholder="{{ 'logs.filter.placeholder' | translate:locale.language }}" #input>
+        </mat-form-field>
+        <table mat-table [dataSource]="machinesLogs" class="example-table">
+            <!-- Number Column -->
+            <ng-container matColumnDef="bench">
+                <th mat-header-cell *matHeaderCellDef>{{ 'logs.table.number' | translate:locale.language }}</th>
+                <td mat-cell *matCellDef="let row">{{row.bench}}</td>
+            </ng-container>
+
+            <!-- Title Column -->
+            <ng-container matColumnDef="created">
+                <th mat-header-cell *matHeaderCellDef>{{ 'logs.table.created' | translate:locale.language }}</th>
+                <td mat-cell *matCellDef="let row">{{toDateTime(row.created)}}</td>
+            </ng-container>
+
+            <!-- Title Column -->
+            <ng-container matColumnDef="log_header">
+                <th mat-header-cell *matHeaderCellDef>{{ 'logs.table.header' | translate:locale.language }}</th>
+                <td mat-cell *matCellDef="let row">{{row.log_header}}</td>
+            </ng-container>
+
+            <!-- Title Column -->
+            <ng-container matColumnDef="log_text">
+                <th mat-header-cell *matHeaderCellDef>{{ 'logs.table.text' | translate:locale.language }}</th>
+                <td mat-cell *matCellDef="let row">{{row.log_text}}</td>
+            </ng-container>
+
+
+            <!-- Created Column -->
+            <ng-container matColumnDef="worked_now">
+                <th mat-header-cell *matHeaderCellDef>{{ 'logs.table.worker' | translate:locale.language }}</th>
+                <td mat-cell *matCellDef="let row">
+                    {{row.worked_now.username}}: {{row.worked_now.full_name}}
+                </td>
+            </ng-container>
+
+            <!-- Link Column -->
+            <ng-container matColumnDef="has_been_read">
+                <th mat-header-cell *matHeaderCellDef>{{ 'logs.table.read' | translate:locale.language }}</th>
+                <td mat-cell *matCellDef="let row">
+                    <mat-chip-list>
+                        <mat-chip *ngIf="row.has_been_read">{{ 'logs.table.chips.read' | translate:locale.language }}</mat-chip>
+                        <mat-chip  *ngIf="!row.has_been_read" color="accent" selected>{{ 'logs.table.chips.new' | translate:locale.language }}</mat-chip>
+                    </mat-chip-list>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+        <mat-paginator [length]="resultsLength" [pageSizeOptions]="[100, 200]"></mat-paginator>
+    </section>
+
+  </mat-tab>
+
+
+</mat-tab-group>

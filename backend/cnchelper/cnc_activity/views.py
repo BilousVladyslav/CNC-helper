@@ -48,13 +48,12 @@ class MachineLogging(GenericViewSet,
     authentication_classes = [BasicAuthentication, SessionAuthentication, TokenAuthentication]
     pagination_class = LogsPageNumberPagination
     filter_backends = [SearchFilter]
-    search_fields = ['=bench__inventory_number']
-    queryset = MachineLog.objects.order_by('created')
+    search_fields = ['bench__inventory_number']
 
-    def filter_queryset(self, queryset):
+    def get_queryset(self):
         if self.request.user.is_supervisor:
-            return queryset.filter(bench__supervisors=self.request.user)
-        return queryset.filter(worked_now=self.request.user)
+            return MachineLog.objects.filter(bench__supervisors=self.request.user).order_by('created')
+        return MachineLog.objects.filter(worked_now=self.request.user).order_by('created')
 
     def get_serializer_class(self):
         if self.action == 'list':

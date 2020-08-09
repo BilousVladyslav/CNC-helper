@@ -5,6 +5,7 @@ import { RegistrationComponent } from './components/registration/registration.co
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
 import { MachinesComponent } from './components/machines/machines.component';
 import { MachineEditComponent } from './components/machine-edit/machine-edit.component';
+import { MachineLogsComponent } from './components/machine-logs/machine-logs.component';
 
 
 
@@ -24,6 +25,10 @@ const routes: Routes = [
   {
     path: 'machines/edit/:machineNumber',
     component: MachineEditComponent
+  },
+  {
+    path: 'logs',
+    component: MachineLogsComponent
   },
 ];
 

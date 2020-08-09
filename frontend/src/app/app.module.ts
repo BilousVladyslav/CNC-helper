@@ -23,6 +23,7 @@ import { RegistrationComponent } from './components/registration/registration.co
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
 import { MachinesComponent } from './components/machines/machines.component';
 import { MachineEditComponent } from './components/machine-edit/machine-edit.component';
+import { MachineLogsComponent } from './components/machine-logs/machine-logs.component';
 
 
 
@@ -35,7 +36,8 @@ import { MachineEditComponent } from './components/machine-edit/machine-edit.com
     RegistrationComponent,
     UserProfileComponent,
     MachinesComponent,
-    MachineEditComponent
+    MachineEditComponent,
+    MachineLogsComponent
   ],
   imports: [
     L10nTranslationModule.forRoot(l10nConfig),

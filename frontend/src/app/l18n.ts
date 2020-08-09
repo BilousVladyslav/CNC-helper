@@ -170,6 +170,26 @@ export const i18nAsset = {
           save: 'Save',
           delete: 'Delete machine'
         }
+      },
+      logs: {
+        title: 'All machines logs',
+        filter: {
+          title: 'Filter by inventory number',
+          placeholder: 'Inventory number'
+        },
+        table: {
+          number: 'Inventory number',
+          created: 'Created at',
+          header: 'Log name',
+          text: 'Log description',
+          worker: 'Worked now',
+          read: 'Read status',
+          time: 'Time',
+          chips: {
+            read: 'Read',
+            new: 'New'
+          }
+        }
       }
     },
     'uk-UA': {
@@ -342,6 +362,26 @@ export const i18nAsset = {
           title: 'Редагувати дані станка',
           save: 'Зберегти',
           delete: 'Видалити станок'
+        }
+      },
+      logs: {
+        title: 'Всі записи станка',
+        filter: {
+          title: 'Фільтрувати за інвентарним номером',
+          placeholder: 'Інвентарний номер станка'
+        },
+        table: {
+          number: 'Інвентарний номер',
+          created: 'Час створення',
+          header: 'Назва запису',
+          text: 'Детальніше про запис',
+          worker: 'Працював у цей момент',
+          read: 'Статус перегляду',
+          time: 'Час',
+          chips: {
+            read: 'Прочитано',
+            new: 'Новий'
+          }
         }
       }
     }
