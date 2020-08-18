@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Inject, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import {merge, Observable, of as observableOf, Subscription} from 'rxjs';
 import {catchError, map, startWith, switchMap} from 'rxjs/operators';
 import { ProfileService } from 'src/app/core/services/profile.service';
@@ -17,8 +17,8 @@ import { MachinesModel, MachinesPaginatedResponse, MachinesCreateModel } from 's
   templateUrl: './machine-edit.component.html',
   styleUrls: ['./machine-edit.component.css']
 })
-export class MachineEditComponent implements OnInit {
-  private subscription: Subscription;
+export class MachineEditComponent implements OnInit, OnDestroy {
+  private subscription: Subscription = new Subscription();
   machineForm: FormGroup;
   workersFormArray: FormArray;
   supervisorsFormArray: FormArray;
@@ -36,11 +36,12 @@ export class MachineEditComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.subscription = this.machinesService
+    this.subscription.add(this.machinesService
       .GetConcreteMachine(this.route.snapshot.params['machineNumber'])
       .subscribe(
         res => this.CreateMachineForm(res),
-        errors => this.router.navigate['machines']);
+        errors => this.router.navigate['machines'])
+    );
   }
 
   CreateMachineForm(data: MachinesModel): void {
@@ -80,14 +81,10 @@ export class MachineEditComponent implements OnInit {
     this.supervisorsFormArray.removeAt(index);
   }
 
-  formsIsValid(): boolean {
-    return this.machineForm.status === 'VALID';
-  }
-
   onSubmit(): void {
-    if (this.formsIsValid()) {
+    if (this.machineForm.valid) {
       const machineViewModel = this.machineForm.value as MachinesCreateModel;
-      this.subscription = this.machinesService
+      this.subscription.add(this.machinesService
         .CreateMachine(machineViewModel)
         .subscribe(
           res => {
@@ -97,12 +94,13 @@ export class MachineEditComponent implements OnInit {
             this._snackBar.open('Wrong data,', 'Close', {
               duration: 3000,
             });
-          });
+          })
+      );
     }
   }
 
   onDelete(): void {
-    this.subscription = this.machinesService
+    this.subscription.add(this.machinesService
           .DeleteMachine(this.route.snapshot.params['machineNumber'])
           .subscribe(
             res => this.router.navigate(['/machines']),
@@ -110,13 +108,12 @@ export class MachineEditComponent implements OnInit {
               this._snackBar.open(errors.message, 'Close', {
                 duration: 3000,
               });
-            });
+            })
+    );
   }
 
   ngOnDestroy(): void {
-    if (this.subscription){
-      this.subscription.unsubscribe();
-    }
+    this.subscription.unsubscribe();
   }
 
 }

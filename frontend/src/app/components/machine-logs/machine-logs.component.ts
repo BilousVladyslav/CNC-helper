@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Inject, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import {merge, Observable, of as observableOf, Subscription} from 'rxjs';
 import {catchError, map, startWith, switchMap} from 'rxjs/operators';
 import { ProfileService } from 'src/app/core/services/profile.service';
@@ -16,9 +16,9 @@ import { MachineLogModel, MachinesLogsPaginatedResponse } from 'src/app/shared/m
   templateUrl: './machine-logs.component.html',
   styleUrls: ['./machine-logs.component.css']
 })
-export class MachineLogsComponent implements OnInit {
+export class MachineLogsComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['bench', 'created', 'log_header', 'log_text', 'worked_now', 'has_been_read'];
-  private subscription: Subscription;
+  private subscription: Subscription = new Subscription();
   machinesLogs: MachineLogModel[];
   machineForm: FormGroup;
   resultsLength = 0;
@@ -59,17 +59,21 @@ export class MachineLogsComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  toDateTime(timeStamp){
+  toDateTime(timeStamp): string{
     return new Date(timeStamp).toLocaleString();
   }
 
-  applyFilter(event: Event) {
+  applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
     this.paginator.pageIndex = 0;
-    this.subscription = this.machinesLogsService.GetLogsWithParams(this.paginator.pageIndex + 1, filterValue)
+    this.subscription.add(this.machinesLogsService.GetLogsWithParams(this.paginator.pageIndex + 1, filterValue)
       .subscribe(data => {
         this.machinesLogs = data.results;
-        });
+        })
+    );
   }
 
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
 }

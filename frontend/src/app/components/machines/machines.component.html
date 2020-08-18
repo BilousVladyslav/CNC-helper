@@ -147,7 +147,7 @@
 
         </form>
 
-        <button mat-raised-button color="warn" (click)="onSubmit()" [disabled]="!formsIsValid()" class="w-100">{{ 'machines.create.button' | translate:locale.language }}</button>
+        <button mat-raised-button color="warn" (click)="onSubmit()" [disabled]="machineForm.invalid" class="w-100">{{ 'machines.create.button' | translate:locale.language }}</button>
     </section>
 
   </mat-tab>

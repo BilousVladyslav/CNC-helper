@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Inject, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import {merge, Observable, of as observableOf, Subscription} from 'rxjs';
 import {catchError, map, startWith, switchMap} from 'rxjs/operators';
 import { ProfileService } from 'src/app/core/services/profile.service';
@@ -16,9 +16,9 @@ import { MachinesModel, MachinesPaginatedResponse, MachinesCreateModel } from 's
   templateUrl: './machines.component.html',
   styleUrls: ['./machines.component.css']
 })
-export class MachinesComponent implements OnInit {
+export class MachinesComponent implements OnInit, OnDestroy, AfterViewInit {
   displayedColumns: string[];
-  private subscription: Subscription;
+  private subscription: Subscription = new Subscription();
   machines: MachinesModel[];
   machineForm: FormGroup;
   resultsLength = 0;
@@ -28,7 +28,7 @@ export class MachinesComponent implements OnInit {
   isSupervisor = false;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
-  
+
   constructor(
     private authorizationService: AuthorizationService,
     private machinesService: MachinesService,
@@ -37,7 +37,7 @@ export class MachinesComponent implements OnInit {
     private _snackBar: MatSnackBar,
     @Inject(L10N_LOCALE) public locale: L10nLocale
   ) {
-    this.authorizationService.isSupervisor.subscribe(data => {
+    this.subscription.add(this.authorizationService.isSupervisor.subscribe(data => {
       this.isSupervisor = data;
       if (data === true){
         this.displayedColumns = ['inventory_number', 'name', 'workers', 'supervisors', 'link'];
@@ -46,10 +46,10 @@ export class MachinesComponent implements OnInit {
       else{
         this.displayedColumns = ['inventory_number', 'name', 'workers', 'supervisors'];
       }
-    });
+    }));
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     merge(this.paginator.page)
       .pipe(
         startWith({}),
@@ -71,7 +71,6 @@ export class MachinesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // this.CreateMachineForm();
   }
 
   CreateMachineForm(): void {
@@ -104,14 +103,10 @@ export class MachinesComponent implements OnInit {
     this.supervisorsFormArray.removeAt(index);
   }
 
-  formsIsValid(): boolean {
-    return this.machineForm.status === 'VALID';
-  }
-
   onSubmit(): void {
-    if (this.formsIsValid()) {
-      var machineViewModel = this.machineForm.value as MachinesCreateModel;
-      this.subscription = this.machinesService
+    if (this.machineForm.valid) {
+      const machineViewModel = this.machineForm.value as MachinesCreateModel;
+      this.subscription.add(this.machinesService
         .CreateMachine(machineViewModel)
         .subscribe(
           res => {
@@ -122,20 +117,20 @@ export class MachinesComponent implements OnInit {
             this._snackBar.open('Wrong data,', 'Close', {
               duration: 3000,
             });
-          });
+          })
+      );
     }
   }
 
   updateMachinesData(): void{
-    this.subscription = this.machinesService.GetMachines(1)
+    this.subscription.add(this.machinesService.GetMachines(1)
       .subscribe(data => {
         this.machines = data.results;
-        });
+        })
+    );
   }
 
   ngOnDestroy(): void {
-    if (this.subscription){
-      this.subscription.unsubscribe();
-    }
+    this.subscription.unsubscribe();
   }
 }

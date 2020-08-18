@@ -2,9 +2,9 @@
   <mat-toolbar color="primary">
     <span>CNC Helper</span>
 
-    <a mat-button routerLink="/profile">{{ 'navbar.profile' | translate:locale.language }}</a>
-    <a mat-button routerLink="/logs" [disabled]="!isVerified">{{ 'navbar.logs' | translate:locale.language }}</a>
-    <a mat-button routerLink="/machines" [disabled]="!isVerified">{{ 'navbar.machines' | translate:locale.language }}</a>
+    <a *ngIf="isLogged" mat-button routerLink="/profile">{{ 'navbar.profile' | translate:locale.language }}</a>
+    <a *ngIf="isLogged" mat-button routerLink="/logs" [disabled]="!isVerified">{{ 'navbar.logs' | translate:locale.language }}</a>
+    <a *ngIf="isLogged" mat-button routerLink="/machines" [disabled]="!isVerified">{{ 'navbar.machines' | translate:locale.language }}</a>
 
     
     <mat-button-toggle-group name="language" aria-label="Font Style" [(value)]="selectedLanguage" style="font-size: 14px; margin-left: auto;">

@@ -91,9 +91,9 @@
 
         </form>
 
-        <button mat-raised-button color="warn" (click)="onDelete()" [disabled]="!formsIsValid()" class="w-100">{{ 'machines.edit.delete' | translate:locale.language }}</button>
+        <button mat-raised-button color="warn" (click)="onDelete()" class="w-100">{{ 'machines.edit.delete' | translate:locale.language }}</button>
 
-        <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="!formsIsValid()" class="w-100 my-3">{{ 'machines.edit.save' | translate:locale.language }}</button>
+        <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="machineForm.invalid" class="w-100 my-3">{{ 'machines.edit.save' | translate:locale.language }}</button>
     </section>
 
   </mat-tab>

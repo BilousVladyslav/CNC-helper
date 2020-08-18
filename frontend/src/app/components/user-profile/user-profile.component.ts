@@ -17,8 +17,8 @@ import {MatSnackBar} from '@angular/material/snack-bar';
   templateUrl: './user-profile.component.html',
   styleUrls: ['./user-profile.component.css']
 })
-export class UserProfileComponent implements OnInit {
-  subscription: Subscription;
+export class UserProfileComponent implements OnInit, OnDestroy {
+  subscription: Subscription = new Subscription();
   user: UserProfileModel = new UserProfileModel();
   userProfileForm: FormGroup;
   emailForm: FormGroup;
@@ -73,16 +73,17 @@ export class UserProfileComponent implements OnInit {
   }
 
   GetUserProfile(): void {
-    this.subscription = this.profileService.GetUserProfile()
+    this.subscription.add(this.profileService.GetUserProfile()
       .subscribe(data => {
         this.user = data;
         this.authorizationService.setIsVerified(this.user.is_verified);
-      });
+      })
+    );
   }
 
   EditUserProfile(): void {
     this.user.birth_date = new Date(this.user.birth_date).toISOString().split("T")[0];
-    this.subscription = this.profileService.EditUserProfile(this.user)
+    this.subscription.add(this.profileService.EditUserProfile(this.user)
       .subscribe(data => {
         this.user = data;
         this._snackBar.open('Success!', 'Close', {
@@ -93,12 +94,13 @@ export class UserProfileComponent implements OnInit {
         this._snackBar.open('Wrong data,', 'Close', {
           duration: 3000,
         });
-      });
+      })
+    );
   }
 
   EditEmail(): void {
     const emailModel = this.emailForm.value as ChangeEmail;
-    this.subscription = this.profileService.ChangeEmail(emailModel)
+    this.subscription.add(this.profileService.ChangeEmail(emailModel)
       .subscribe(data => {
         this.emailForm.reset();
         this._snackBar.open('Success! Verification sent to yor new email.', 'Close', {
@@ -109,12 +111,13 @@ export class UserProfileComponent implements OnInit {
         this._snackBar.open('Wrong data,', 'Close', {
           duration: 3000,
         });
-      });
+      })
+    );
   }
 
   EditPassword(): void {
     const passwordsModel = this.passwordsForm.value as ChangePassword;
-    this.subscription = this.profileService.ChangePassword(passwordsModel)
+    this.subscription.add(this.profileService.ChangePassword(passwordsModel)
       .subscribe(data => {
         this.passwordsForm.reset();
         this._snackBar.open('Success! Log in again.', 'Close', {
@@ -126,7 +129,8 @@ export class UserProfileComponent implements OnInit {
         this._snackBar.open('Wrong data,', 'Close', {
           duration: 3000,
         });
-      });
+      })
+    );
   }
 
   onSubmitProfile(): void {
@@ -142,9 +146,7 @@ export class UserProfileComponent implements OnInit {
   }
 
   ngOnDestroy(): void {
-    if (this.subscription){
-      this.subscription.unsubscribe();
-    }
+    this.subscription.unsubscribe();
   }
 
 }

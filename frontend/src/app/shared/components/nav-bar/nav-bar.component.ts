@@ -16,8 +16,8 @@ import {
   templateUrl: './nav-bar.component.html',
   styleUrls: ['./nav-bar.component.css']
 })
-export class NavBarComponent implements OnInit {
-  private subscription: Subscription;
+export class NavBarComponent implements OnInit, OnDestroy {
+  private subscription: Subscription = new Subscription();
   schema = this.l10nConfig.schema;
 
   selectedLanguage = this.schema[0].locale;
@@ -32,19 +32,19 @@ export class NavBarComponent implements OnInit {
     private router: Router,
     private autorizationService: AuthorizationService,
   ) {
-    autorizationService.isLoggedIn.subscribe(x => this.isLogged = x);
-    autorizationService.isVerified.subscribe(x => this.isVerified = x);
-    autorizationService.isSupervisor.subscribe(x => this.isSupervisor = x);
+    this.subscription.add(autorizationService.isLoggedIn.subscribe(x => this.isLogged = x));
+    this.subscription.add(autorizationService.isVerified.subscribe(x => this.isVerified = x));
+    this.subscription.add(autorizationService.isSupervisor.subscribe(x => this.isSupervisor = x));
    }
 
   ngOnInit(): void {
-    this.translation.onError().subscribe({
+    this.subscription.add(this.translation.onError().subscribe({
       next: (error: any) => {
         if (error){
           console.log(error);
         }
       }
-    });
+    }));
   }
 
   setLocale(locale: L10nLocale): void {
