@@ -251,16 +251,16 @@ class VerifyUserProfileTests(APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.URL = '/api/verify/'
-        cls.user = get_user_model().objects.create_user('normal', 'normal@user.com', 'Vladyslav',
+        cls.user = get_user_model().objects.create_user('normal', 'akkauntdriver@gmail.com', 'Vladyslav',
                                                         'Bilous', 'foo', date(2000, 2, 26))
         cls.confirmation = cls.user.confirmations.all()[0]
 
     def test_correct_uuid_verification(self):
-        data = {'uuid': self.confirmation.uuid}
+        uuid = str(self.confirmation.uuid)
         self.assertFalse(self.user.is_verified)
         self.assertFalse(self.confirmation.is_confirmed)
 
-        response = self.client.put(self.URL, data, format='json')
+        response = self.client.get(self.URL + uuid + '/')
 
         self.user.refresh_from_db(fields=['is_verified'])
         self.confirmation.refresh_from_db(fields=['is_confirmed'])
@@ -307,8 +307,8 @@ class ChangeEmailTests(APITestCase):
         self.assertEqual(creation_response.status_code, 201)
         self.assertFalse(confirmations[0].is_confirmed)
 
-        confirm_data = {'uuid': confirmations[0].uuid}
-        confirming_response = self.client.put('/api/verify/', confirm_data, format='json')
+        uuid = str(confirmations[0].uuid)
+        confirming_response = self.client.get('/api/verify/' + uuid + '/')
 
         self.user.refresh_from_db(fields=['is_verified', 'email'])
         confirmations[0].refresh_from_db(fields=['is_confirmed'])

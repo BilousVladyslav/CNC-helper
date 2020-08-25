@@ -1,9 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from rest_framework.authtoken.models import Token
-from django.conf import settings
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.contrib.auth import get_user_model
 from .tasks import send_verification_email
 import uuid
@@ -32,7 +29,7 @@ class UserManager(BaseUserManager):
         user.save()
         Token.objects.create(user=user)
         confirmation = EmailConfirmation.objects.create(user=user, new_mail=user.email, send_to=user.email)
-        # send_verification_email.delay(confirmation.send_to, confirmation.new_mail, confirmation.uuid)
+        send_verification_email.delay(confirmation.send_to, confirmation.new_mail, confirmation.uuid)
         return user
 
     def create_superuser(self, username, email, first_name, last_name, password, birth_date=None):

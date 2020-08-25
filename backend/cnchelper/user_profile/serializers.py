@@ -98,26 +98,6 @@ class EmailConfirmationSerializer(serializers.Serializer):
         return confirmation
 
 
-class ConfirmEmailSerializer(serializers.Serializer):
-    uuid = serializers.UUIDField(required=True)
-
-    def validate(self, attrs):
-        now = timezone.now()
-        date_created = now.replace(day=int(now.day - 1))
-        queryset = EmailConfirmation.objects.filter(is_confirmed=False, created__gte=date_created)
-        get_object_or_404(queryset, uuid=attrs['uuid'])
-        return attrs
-
-    def save(self):
-        confirmation = EmailConfirmation.objects.get(uuid=self.validated_data['uuid'])
-        confirmation.is_confirmed = True
-        confirmation.user.email = confirmation.new_mail
-        confirmation.user.is_verified = True
-        confirmation.user.save()
-        confirmation.save()
-        EmailConfirmation.objects.filter(is_confirmed=False, user=confirmation.user).delete()
-
-
 class UsersSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
 

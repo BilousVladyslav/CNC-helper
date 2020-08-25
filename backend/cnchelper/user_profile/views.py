@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
+from rest_framework.viewsets import GenericViewSet
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
@@ -10,10 +11,12 @@ from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, UpdateMo
     ListModelMixin
 
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
+from .models import EmailConfirmation
 from .permissions import IsSupervisor, IsVerified
 from .serializers import RegisterUserSerializer, PasswordChangeSerializer, EmailConfirmationSerializer, \
-    ConfirmEmailSerializer, UserProfileSerializer, UsersSerializer
+    UserProfileSerializer, UsersSerializer
 
 
 class ObtainTokenWithStatus(ObtainAuthToken):
@@ -61,18 +64,26 @@ class EmailConfirmationCreating(GenericAPIView):
                                            context={'user': request.user})
         serializer.is_valid(raise_exception=True)
         confirmation = serializer.save()
-        # send_verification_email.delay(confirmation.send_to, confirmation.new_mail, confirmation.uuid)
+
         return Response(status=status.HTTP_201_CREATED)
 
 
-class EmailConfirming(GenericAPIView):
-    serializer_class = ConfirmEmailSerializer
+class EmailConfirming(GenericViewSet):
+    lookup_field = 'uuid'
 
-    def put(self, request):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+    def get_queryset(self):
+        now = timezone.now()
+        date_created = now.replace(day=int(now.day - 1))
+        return EmailConfirmation.objects.filter(is_confirmed=False, created__gte=date_created)
 
+    def retrieve(self, request, *args, **kwargs):
+        confirmation = self.get_object()
+        confirmation.is_confirmed = True
+        confirmation.user.email = confirmation.new_mail
+        confirmation.user.is_verified = True
+        confirmation.user.save()
+        confirmation.save()
+        EmailConfirmation.objects.filter(is_confirmed=False, user=confirmation.user).delete()
         return Response(status=status.HTTP_200_OK)
 
 
