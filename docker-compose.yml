@@ -1,0 +1,54 @@
+version: '3.7'
+services:
+  backend:
+    build: 
+        context: ./backend
+        dockerfile: Dockerfile
+    command: python backend/cnchelper/manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./:/usr/src/app/backend/
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+    env_file:
+      - ./backend/.env.dev
+  redis:
+    image: redis
+    restart: always
+    command: redis-server
+    ports:
+      - '6379:6379'
+  celery:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    command: sh -c "cd backend/cnchelper && celery -A cnchelper worker -l info"
+    volumes:
+      - ./:/usr/src/app/backend/
+    links:
+      - redis
+    depends_on:
+      - backend
+      - redis
+  frontend:
+    build: 
+        context: ./frontend
+        dockerfile: Dockerfile
+    command: ng serve --host=0.0.0.0 --port 4200
+    volumes:
+      - ./usr/src/app/frontend/node_modules
+      - ./usr/src/app/frontend/dist
+    ports:
+      - 4200:4200
+    depends_on:
+      - backend
+  db:
+    build: 
+      context: ./db
+      dockerfile: Dockerfile
+    image: postgres:12.0-alpine
+    volumes:
+      - ./:/usr/src/app/db/
+    env_file: 
+      - ./db/.env.dev

@@ -15,10 +15,10 @@ SECRET_KEY = 'd2d9-=dnod!6i*9qw$ft_3fxa5*te8=v=^u7e6q%v_qa!_9p-0'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['backend', 'localhost', 'redis']
 
 # REDIS related settings
-REDIS_HOST = 'localhost'
+REDIS_HOST = 'redis'
 REDIS_PORT = '6379'
 BROKER_URL = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
 BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
@@ -91,8 +91,8 @@ DATABASES = {
         'NAME': 'cnc_helper_db',
         'USER': 'cnc_helper_user',
         'PASSWORD': 'Jbjfj78gfJf9hdfas',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+        "HOST": os.environ.get("SQL_HOST", "localhost"),
+        "PORT": os.environ.get("SQL_PORT", "5432"),
     }
 }
 

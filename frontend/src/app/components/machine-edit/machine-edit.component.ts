@@ -85,10 +85,10 @@ export class MachineEditComponent implements OnInit, OnDestroy {
     if (this.machineForm.valid) {
       const machineViewModel = this.machineForm.value as MachinesCreateModel;
       this.subscription.add(this.machinesService
-        .CreateMachine(machineViewModel)
+        .EditMachine(machineViewModel, this.route.snapshot.params['machineNumber'])
         .subscribe(
           res => {
-            this.machineForm.reset();
+            this.router.navigate['machines'];
           },
           errors => {
             this._snackBar.open('Wrong data,', 'Close', {
